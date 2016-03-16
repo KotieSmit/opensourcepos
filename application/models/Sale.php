@@ -256,12 +256,21 @@ class Sale extends CI_Model
 			return -1;
 		}
 
+
+		$payment_types='';
+		foreach($payments as $payment_id=>$payment)
+		{
+			$payment_types=$payment_types.$payment['payment_type'].': '.to_currency($payment['payment_amount']).'<br />';
+		}
+
+
 		$sales_data = array(
 			'sale_time' => date('Y-m-d H:i:s'),
 			'customer_id'=> $this->Customer->exists($customer_id) ? $customer_id : null,
 			'employee_id'=>$employee_id,
 			'comment'=>$comment,
-			'invoice_number'=>$invoice_number
+			'invoice_number'=>$invoice_number,
+			'cashup_id' => $this->session->userdata['cashup_id']
 		);
 
 		//Run these queries as a transaction, we want to make sure we do all or nothing
@@ -272,6 +281,7 @@ class Sale extends CI_Model
 
 		foreach($payments as $payment_id=>$payment)
 		{
+			$payment_type = $payment['payment_type'];
 			if ( substr( $payment['payment_type'], 0, strlen( $this->lang->line('sales_giftcard') ) ) == $this->lang->line('sales_giftcard') )
 			{
 				/* We have a gift card and we have to deduct the used value from the total value of the card. */
@@ -283,8 +293,11 @@ class Sale extends CI_Model
 			$sales_payments_data = array(
 				'sale_id'=>$sale_id,
 				'payment_type'=>$payment['payment_type'],
-				'payment_amount'=>$payment['payment_amount']
+				'payment_amount'=>$payment['payment_amount'],
+//				'fk_reason'=>$payment['fk_reason'],
+				'cashup_id' => $this->session->userdata['cashup_id']
 			);
+
 			$this->db->insert('sales_payments',$sales_payments_data);
 		}
 

@@ -5,21 +5,32 @@
  * Time: 12:35 PM
   */
 require_once ("secure_area.php");
-class Cashup extends Secure_area
+
+
+class Cashups extends Secure_area
 {
     function __construct()
     {
-        parent::__construct('cashup');
+        parent::__construct('cashups');
     }
 
     function index()
     {
 //        $cashup_data = $this->Cashup->get_full_cashup_info(1);
+
+
+
+        $data['controller_name'] = $this->get_controller_name();
+        $data['form_width'] = $this->get_form_width();
+        $lines_per_page = $this->Appconfig->get('lines_per_page');
+
+//        $cashup = $this->Cashup->get_full_cashup_info(1);
+
         $this->loadCashupListView();
     }
 
     function loadCashupListView(){
-        $cashup_data = $this->Cashup->get_init_page_info(1);
+        $cashup_data = $this->Cashup->get_init_page_info();
         $cashup_data['manage_table']=get_cashup_manage_table($this->Cashup->get_outstanding_cashup_list(), $this);
         $this->load->view('cashup/form', $cashup_data);
     }

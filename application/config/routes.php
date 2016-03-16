@@ -72,6 +72,7 @@ $route['reports/detailed_receivings'] = 'reports/date_input_recv';
 $route['reports/(specific_:any)/([^/]+)/([^/]+)/([^/]+)'] = 'reports/$1/$2/$3/$4';
 $route['reports/specific_customer'] = 'reports/specific_customer_input';
 $route['reports/specific_employee'] = 'reports/specific_employee_input';
+$route['reports/specific_cashup'] = "reports/specific_cashup_input";
 $route['reports/specific_discount'] = 'reports/specific_discount_input';
 
 $route['404_override'] = '';

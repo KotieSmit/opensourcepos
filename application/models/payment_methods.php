@@ -5,7 +5,7 @@
  * Time: 11:37 PM
   */
 
-class Payment_methods extends Model{
+class Payment_methods extends CI_Model{
 
     function exists($name)
     {

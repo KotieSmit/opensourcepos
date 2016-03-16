@@ -21,3 +21,7 @@ $lang["module_sales"] = "Sales";
 $lang["module_sales_desc"] = "Process sales and returns";
 $lang["module_suppliers"] = "Suppliers";
 $lang["module_suppliers_desc"] = "Add, Update, Delete, and Search suppliers";
+$lang["module_cashups"] = "Cashup";
+$lang["module_cashups_desc"] = "Daily Cashup";
+$lang["module_bom"] = "BOM";
+$lang["module_bom_desc"] = "Bill of material";

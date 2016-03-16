@@ -5,7 +5,7 @@
  * Time: 12:49 PM
   */
 
-class Cashup  extends Model{
+class Cashup  extends CI_Model{
 
     function get_full_cashup_info($cashup_id){
         $cashup_data = array();
@@ -24,17 +24,17 @@ class Cashup  extends Model{
                     sum(payment_amount) as amount
                 from
                     (select
-                        openpos_cashups.cashup_id,
-                            openpos_people.first_name,
-                            openpos_people.last_name
+                        ospos_cashups.cashup_id,
+                            ospos_people.first_name,
+                            ospos_people.last_name
                     from
-                        openpos_cashups
-                    inner join openpos_people ON openpos_cashups.employee_id = openpos_people.person_id
+                        ospos_cashups
+                    inner join ospos_people ON ospos_cashups.employee_id = ospos_people.person_id
                     where
-                        openpos_cashups.closed IS NULL
-                    group by openpos_cashups.cashup_id , openpos_people.first_name , openpos_people.last_name) as tbl
+                        ospos_cashups.closed IS NULL
+                    group by ospos_cashups.cashup_id , ospos_people.first_name , ospos_people.last_name) as tbl
                         inner join
-                    openpos_sales_payments ON tbl.cashup_id = openpos_sales_payments.cashup_id
+                    ospos_sales_payments ON tbl.cashup_id = ospos_sales_payments.cashup_id
                 group by tbl.cashup_id", false);
 
 		return $this->db->get();
@@ -69,6 +69,8 @@ class Cashup  extends Model{
         $payments = array();
         foreach ($payment_methods as $payment_method) {
             foreach ($payment_totals as $payment_total) {
+                $payment_total['payment_type'] = explode(":", $payment_total['payment_type']);
+                $payment_total['payment_type'] = $payment_total['payment_type'][0];
                 $payments[$payment_method['Name']] = array('name' => $payment_method['Name'], 'reported_total' => 0);
                 if ($payment_method['Name'] == $payment_total['payment_type']) {
                     $payments[$payment_method['Name']] = array('name' => $payment_method['Name'], 'reported_total' => $payment_total['payment_amount']);
@@ -86,7 +88,7 @@ class Cashup  extends Model{
     function get_employee_cashup_list(){
         $this->db->select('username');
         $this->db->from('employees');
-        $this->db->join('cashups', 'employees.person_id = openpos_cashups.employee_id');
+        $this->db->join('cashups', 'employees.person_id = ospos_cashups.employee_id');
         $this->db->where('closed IS NULL');
 		$this->db->order_by("username", "desc");
 

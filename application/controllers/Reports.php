@@ -807,6 +807,49 @@ class Reports extends Secure_area
 		$this->load->view("reports/tabular_details",$data);
 	}
 
+
+
+	function specific_cashup_input()
+	{
+		$data = $this->_get_common_report_data();
+		$data['specific_input_name'] = $this->lang->line('reports_employee');
+
+		$employees = array();
+		foreach($this->Employee->get_all()->result() as $employee)
+		{
+			$employees[$employee->person_id] = $employee->first_name .' '.$employee->last_name;
+		}
+		$data['specific_input_data'] = $employees;
+		$this->load->view("reports/specific_input_cashup",$data);
+	}
+
+
+	function specific_cashup($start_date, $end_date, $employee_id , $export_excel=0)
+	{
+		$this->load->model('reports/Specific_cashup');
+		$model = $this->Specific_cashup;
+		$tabular_data = array();
+		$report_data = $model->getData(array('start_date'=>$start_date, 'end_date'=>$end_date, 'employee_id' =>$employee_id,));
+		foreach($report_data as $row) {
+			$tabular_data[] = array(
+				$row['cashup_id'], date('m/d/Y', strtotime($row['date_time'])),
+				$this->lang->line("sales_" . $row['language_id']),
+				to_currency($row['reported_value']),
+				to_currency($row['declared_amount']),
+				to_currency($row['variance'])
+			);
+		}
+		$data = array(
+			"title" => $this->lang->line('reports_cashups'),
+			"subtitle" => date('m/d/Y', strtotime($start_date)) .'-'.date('m/d/Y', strtotime($end_date)),
+			"headers" => $model->getDataColumns(),
+			"data" => $tabular_data,
+			"summary_data" => $model->getSummaryData(array('start_date'=>$start_date, 'end_date'=>$end_date, 'employee_id' =>$employee_id )),
+			"export_excel" => $export_excel
+		);
+		$this->load->view("reports/tabular_cashup",$data);
+	}
+
 	function specific_discount_input()
 	{
 		$data = $this->_get_common_report_data();

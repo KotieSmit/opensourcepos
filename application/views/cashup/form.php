@@ -1,7 +1,7 @@
 <body>
 <?php $this->load->view("partial/header"); ?>
 <?php
-echo form_open('cashups/reload/');
+echo form_open('cashup/reload/');
 ?>
 
 
