@@ -78,7 +78,7 @@ echo form_open('items/save_bom/' . $item_info->item_id, array('id' => 'bom_form'
                            name=bom_item[<?php echo $item_info->item_id ?>]
                            onchange=calc_cost()
                            value='<?php echo $item_bom_item['quantity'] ?>'
-                        />
+                    />
                 </td>
                 <td class="unit_cost_<?php echo $count; ?>"
                     id=item_cost_<?php echo $count ?>
@@ -155,33 +155,33 @@ echo form_close();
     });
 
 
-function calc_cost()
-{
-    var count = 0;
-    var line_cost = 0;
-    var cost = 0;
-    var line_cost_total = 0;
-    var line_qty = 0;
-    $('.quantity').each(function () {
+    function calc_cost()
+    {
+        var count = 0;
+        var line_cost = 0;
+        var cost = 0;
+        var line_cost_total = 0;
+        var line_qty = 0;
+        $('.quantity').each(function () {
 
-        if ($(this).val() !== '') {
-            line_qty = parseFloat($(".quantity_" + count).val());
-            var cost_elm = document.getElementById('item_cost_' + count);
-            line_cost = parseFloat(cost_elm.getAttribute("data-unit_cost_" + count));
-            line_cost_total = line_cost * line_qty;
-            if (line_cost != null) {
-                $('.unit_cost_' + count).html(line_cost_total.toFixed(2));
-                var elem = document.getElementsByTagName('.unit_cost_' + count);
-                elem.value = line_cost_total.toFixed(2);
-                cost += line_cost_total;
+            if ($(this).val() !== '') {
+                line_qty = parseFloat($(".quantity_" + count).val());
+                var cost_elm = document.getElementById('item_cost_' + count);
+                line_cost = parseFloat(cost_elm.getAttribute("data-unit_cost_" + count));
+                line_cost_total = line_cost * line_qty;
+                if (line_cost != null) {
+                    $('.unit_cost_' + count).html(line_cost_total.toFixed(2));
+                    var elem = document.getElementsByTagName('.unit_cost_' + count);
+                    elem.value = line_cost_total.toFixed(2);
+                    cost += line_cost_total;
+                }
+                count += 1;
             }
-            count += 1;
-        }
-        ;
-    });
-    var elem = document.getElementById("bom_cost");
-    elem.value = cost.toFixed(2);
-}
+            ;
+        });
+        var elem = document.getElementById("bom_cost");
+        elem.value = cost.toFixed(2);
+    }
 
 
     //validation and submit handling
