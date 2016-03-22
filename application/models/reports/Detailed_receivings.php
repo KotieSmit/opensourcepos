@@ -48,7 +48,7 @@ class Detailed_receivings extends Report
 		{
 			$this->db->having('items_purchased = 0');
 		}
-		$this->db->group_by('receiving_id');
+		$this->db->group_by('`receiving_id`, `receiving_date` , `employee_name`, `supplier_name`, `payment_type`, `comment` , `invoice_number`');
 		$this->db->order_by('receiving_date');
 
 		$data = array();

@@ -70,3 +70,57 @@ CREATE TABLE IF NOT EXISTS `ospos_payment_reason` (
   PRIMARY KEY (`payment_reson_id`),
   UNIQUE KEY `payment_reson_id_UNIQUE` (`payment_reson_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+--
+-- Add columns for bill of materials
+--
+
+ALTER TABLE `ospos_items`
+ADD COLUMN `stock_keeping_item` INT(1) NOT NULL DEFAULT 1 AFTER `custom10`,
+ADD COLUMN `production_item` INT(1) NOT NULL DEFAULT 0 AFTER `stock_keeping_item`,
+ADD COLUMN `cost_from_bom` INT(1) NOT NULL DEFAULT 1 AFTER `production_item`;
+
+
+--
+-- Table structure for table `ospos_item_bom`
+--
+
+CREATE TABLE IF NOT EXISTS `ospos_item_bom` (
+  `item_bom_id` int(10) NOT NULL AUTO_INCREMENT,
+  `item_id` int(11) NOT NULL,
+  `bom_item_id` int(11) NOT NULL,
+  `quantity` double(15,3) NOT NULL,
+  PRIMARY KEY (`item_bom_id`,`item_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=300 ;
+
+
+
+--
+-- Create view to ease up looking up and updating BOM cost
+--
+
+CREATE
+VIEW `view_item_bom_cost` AS
+  select `ib`.`item_id` AS `item_id`,
+         sum((`bi`.`cost_price` * `ib`.`quantity`)) AS `bom_line_cost`,
+         `i`.`cost_price` AS `item_cost_price`,
+         `i`.`cost_from_bom` AS `cost_from_bom`
+  from (
+      (`ospos_item_bom` `ib`
+        left join `ospos_items` `i` on((`ib`.`item_id` = `i`.`item_id`)))
+      left join `ospos_items` `bi` on((`ib`.`bom_item_id` = `bi`.`item_id`)))
+  group by `ib`.`item_id`;
+
+
+ALTER TABLE `ospos_items`
+ADD COLUMN `retail_item` VARCHAR(45) NOT NULL DEFAULT '1' AFTER `cost_from_bom`;
+
+
+ALTER TABLE `ospos_inventory`
+CHANGE COLUMN `trans_inventory` `trans_inventory` DECIMAL(8,3) NOT NULL DEFAULT '0' ;
+
+ALTER TABLE `ospos_item_quantities`
+CHANGE COLUMN `quantity` `quantity` DECIMAL(8,3) NOT NULL DEFAULT '0' ;
+
+

@@ -23,7 +23,7 @@ class Specific_cashup extends Report
     public function getData(array $inputs)
     {
         $this->db->select('cashups_declared.cashup_id , language_id, closed as date_time,  SUM(reported_total) as reported_value, SUM(declared_value) as declared_amount,
-            (SUM(reported_total) - SUM(declared_value)) as variance' ,  false);
+            (SUM(declared_value) - SUM(reported_total)) as variance' ,  false);
         $this->db->from('cashups_declared ');
         $this->db->join('payment_methods', 'cashups_declared.payment_method_id=payment_methods.payment_method_id');
         $this->db->join('cashups', 'cashups_declared.cashup_id=cashups.cashup_id');

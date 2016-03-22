@@ -82,9 +82,9 @@ echo form_open('items/save_bom/' . $item_info->item_id, array('id' => 'bom_form'
                 </td>
                 <td class="unit_cost_<?php echo $count; ?>"
                     id=item_cost_<?php echo $count ?>
-                    data-unit_cost_<?php echo $count . '=' . $item_bom_item['cost'] ?> ><?php echo number_format($item_bom_item['cost'] * $item_bom_item['quantity'], 2); ?>
+                    data-unit_cost_<?php echo $count . '=' . $item_bom_item['cost_price'] ?> ><?php echo number_format($item_bom_item['cost_price'] * $item_bom_item['quantity'], 2); ?>
                 </td>
-                <?php $total_cost += $item_bom_item['cost'] * $item_bom_item['quantity'] ?>
+                <?php $total_cost += $item_bom_item['cost_price'] * $item_bom_item['quantity'] ?>
 
             </tr>
             <?php $count = $count + 1;
