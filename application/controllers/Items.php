@@ -120,7 +120,7 @@ class Items extends Secure_area implements iData_controller
 	function suggest()
 	{
 		$suggestions = $this->Item->get_search_suggestions($this->input->post('q'), $this->input->post('limit'),
-															$this->input->post('search_custom'), $this->input->post('is_deleted') != null);
+															$this->input->post('search_custom'), !empty($this->input->post('is_deleted')));
 
 		echo implode("\n",$suggestions);
 	}
@@ -500,7 +500,7 @@ class Items extends Secure_area implements iData_controller
 	function check_item_number()
 	{
 		$exists = $this->Item->item_number_exists($this->input->post('item_number'),$this->input->post('item_id'));
-		echo json_encode(array('success'=>!$exists,'message'=>$this->lang->line('items_item_number_duplicate')));
+		echo !$exists ? 'true' : 'false';
 	}
 	
 	function _handle_image_upload()
