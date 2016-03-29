@@ -172,7 +172,10 @@ class Sales extends Secure_area
 	function select_customer()
 	{
 		$customer_id = $this->input->post('customer');
-		$this->sale_lib->set_customer($customer_id);
+		if ($this->Customer->exists($customer_id))
+		{
+			$this->sale_lib->set_customer($customer_id);
+		}
 		$this->_reload();
 	}
 
@@ -531,6 +534,13 @@ class Sales extends Secure_area
 
 		return $text;
 	}
+
+	private function _is_custom_invoice_number($cust_info)
+	{
+		$invoice_number = $this->config->config['sales_invoice_format'];
+		$invoice_number = $this->_substitute_variables($invoice_number, $cust_info);
+		return $this->sale_lib->get_invoice_number() != $invoice_number;
+	}
 	
 	private function _substitute_variables($text, $cust_info)
 	{
@@ -780,6 +790,7 @@ class Sales extends Secure_area
 		$data['amount_change'] = to_currency($this->sale_lib->get_amount_due() * -1);
 		$data['employee'] = $emp_info->first_name.' '.$emp_info->last_name;
 
+		$cust_info = '';
 		if($customer_id != -1)
 		{
 			$cust_info = $this->Customer->get_info($customer_id);
@@ -792,6 +803,9 @@ class Sales extends Secure_area
 				$data['customer'] = $cust_info->first_name.' '.$cust_info->last_name;
 			}
 		}
+
+		$is_set = $this->_is_custom_invoice_number($cust_info);
+		$invoice_number = $is_set ? $invoice_number : NULL;
 
 		$total_payments = 0;
 
