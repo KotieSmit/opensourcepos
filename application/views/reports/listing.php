@@ -5,7 +5,7 @@
 	<li><h3><?php echo $this->lang->line('reports_graphical_reports'); ?></h3>
 		<ul>
 			<?php
-			foreach($grants as $grant) 
+			foreach($grants as $grant)
 			{
 				if (!preg_match('/reports_(inventory|receivings)/', $grant['permission_id']))
 				{
@@ -15,11 +15,11 @@
 			?>
 		</ul>
 	</li>
-	
+
 	<li><h3><?php echo $this->lang->line('reports_summary_reports'); ?></h3>
 		<ul>
-			<?php 
-			foreach($grants as $grant) 
+			<?php
+			foreach($grants as $grant)
 			{
 				if (!preg_match('/reports_(inventory|receivings)/', $grant['permission_id']))
 				{
@@ -29,10 +29,10 @@
 			?>
 		</ul>
 	</li>
-	
+
 	<li><h3><?php echo $this->lang->line('reports_detailed_reports'); ?></h3>
 		<ul>
-		<?php 			
+		<?php
 			$person_id = $this->session->userdata('person_id');
 			show_report_if_allowed('detailed', 'sales', $person_id);
 			show_report_if_allowed('detailed', 'receivings', $person_id);
@@ -44,19 +44,19 @@
 		?>
 		</ul>
 	</li>
-	<?php 
+	<?php
 	if ($this->Employee->has_grant('reports_inventory', $this->session->userdata('person_id')))
 	{
 	?>
 	<li><h3><?php echo $this->lang->line('reports_inventory_reports'); ?></h3>
 		<ul>
-		<?php 
-			show_report('', 'reports_inventory_low');	
+		<?php
+			show_report('', 'reports_inventory_low');
 			show_report('', 'reports_inventory_summary');
 		?>
 		</ul>
 	</li>
-	<?php 
+	<?php
 	}
 	?>
 </ul>
