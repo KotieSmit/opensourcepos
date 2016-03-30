@@ -123,8 +123,12 @@ class Receiving extends CI_Model
 			);
 			$this->Inventory->insert($inv_data);
 
+
 			$supplier = $this->Supplier->get_info($supplier_id);
+
 		}
+		$this->Item->update_all_bom_cost();
+
 		$this->db->trans_complete();
 		
 		if ($this->db->trans_status() === FALSE)

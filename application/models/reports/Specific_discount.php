@@ -30,7 +30,7 @@ class Specific_discount extends Report
 			$this->db->where('quantity_purchased < 0');
 		}
 
-		$this->db->group_by('sale_id');
+		$this->db->group_by('sale_id, sale_time, customer_name, payment_type, comment');
 		$this->db->order_by('sale_date');
 
 		$data = array();

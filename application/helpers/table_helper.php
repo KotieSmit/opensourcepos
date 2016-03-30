@@ -358,10 +358,12 @@ function get_item_data_row($item,$controller)
 		}
 	}
 	$table_data_row.='<td align="center" width="55px">' . $image . '</td>';
-	$table_data_row.='<td width="5%">'.anchor($controller_name."/view/$item->item_id/width:$width", $CI->lang->line('common_edit'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_update'))).'</td>';		
+	$table_data_row.='<td width="5%">'.anchor($controller_name."/view/$item->item_id/width:$width", $CI->lang->line('common_edit'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_update'))).'</td>';
 
-	$table_data_row.='<td width="10%">'.anchor($controller_name."/inventory/$item->item_id/width:$width", $CI->lang->line('common_inv'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_count')))./*'</td>';//inventory count	
-	$table_data_row.='<td width="5%">'*/'&nbsp;&nbsp;&nbsp;&nbsp;'.anchor($controller_name."/count_details/$item->item_id/width:$width", $CI->lang->line('common_det'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_details_count'))).'</td>';//inventory details	
+//	$table_data_row.='<td width="5%">'.anchor($controller_name."/inventory/$item->item_id/width:$width", $CI->lang->line('common_inv'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_count'))).'</td>';//inventory count
+	$table_data_row.='<td width="5%">'.anchor($controller_name."/inventory/$item->item_id/width:$width", $CI->lang->line('common_inv'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_count'))).'</td>';//inventory count
+$table_data_row.='<td width="5%"> '.anchor($controller_name."/bill_of_materials/$item->item_id/width:$width", $CI->lang->line('common_bom'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_bom'))).'</td>'; //Bill of Materials
+$table_data_row.='<td width="5%"> &nbsp;&nbsp;&nbsp;&nbsp;'.anchor($controller_name."/count_details/$item->item_id/width:$width", $CI->lang->line('common_det'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_details_count'))).'</td>';//inventory details
 	
 	$table_data_row.='</tr>';
 
@@ -504,4 +506,62 @@ function get_item_kit_data_row($item_kit, $controller)
 	return $table_data_row;
 }
 
+
+
+/*
+Gets the html table to manage Cashups.
+*/
+function get_cashup_manage_table( $cashups, $controller )
+{
+	$CI =& get_instance();
+	$table='<table class="tablesorter" id="sortable_table">';
+	$headers = array(
+		$CI->lang->line('cashup_id'),
+		$CI->lang->line('common_first_name'),
+		$CI->lang->line('common_last_name'),
+		$CI->lang->line('cashup_outstanding_amount'),
+		$CI->lang->line('cashup_Actions'),
+		'&nbsp',
+	);
+	$table.='<thead><tr>';
+	foreach($headers as $header)
+	{
+		$table.="<th>$header</th>";
+	}
+	$table.='</tr></thead><tbody>';
+	$table.=get_cashup_manage_table_data_rows( $cashups, $controller );
+	$table.='</tbody></table>';
+	return $table;
+}
+/*
+Gets the html data rows for the cashups.
+*/
+function get_cashup_manage_table_data_rows( $cashups, $controller )
+{
+	$CI =& get_instance();
+	$table_data_rows='';
+	foreach($cashups->result() as $cashup)
+	{
+		$table_data_rows.=get_cashup_data_row( $cashup, $controller );
+	}
+	if($cashups->num_rows()==0)
+	{
+		$table_data_rows.="<tr><td colspan='11'><div class='warning_message' style='padding:7px;'>".$CI->lang->line('cashup_no_outstaning_cashups_to_display')."</div></tr></tr>";
+	}
+	return $table_data_rows;
+}
+function get_cashup_data_row($cashup,$controller)
+{
+	$CI =& get_instance();
+	$controller_name=strtolower(get_class($CI));
+	$width = $controller->get_form_width();
+	$table_data_row='<tr>';
+	$table_data_row.="<td width='3%'>".$cashup->cashup_id."</td>";
+	$table_data_row.='<td width="15%">'.$cashup->first_name.'</td>';
+	$table_data_row.='<td width="20%">'.$cashup->last_name.'</td>';
+	$table_data_row.='<td width="20%">'.$cashup->amount.'</td>';
+	$table_data_row.='<td width="5%">'.anchor($controller_name."/declareCashup/$cashup->cashup_id/width:$width", $CI->lang->line('common_edit'),array('class'=>'thickbox','title'=>$CI->lang->line($controller_name.'_update'))).'</td>';
+	$table_data_row.='</tr>';
+	return $table_data_row;
+}
 ?>

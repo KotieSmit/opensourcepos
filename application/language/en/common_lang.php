@@ -2,6 +2,7 @@
 
 $lang["common_address_1"] = "Address 1";
 $lang["common_address_2"] = "Address 2";
+$lang["common_bom"] = "BOM";
 $lang["common_city"] = "City";
 $lang["common_comments"] = "Comments";
 $lang["common_common"] = "common";
@@ -36,6 +37,7 @@ $lang["common_phone_number_required"] = "";
 $lang["common_please_visit_my"] = "Please visit my";
 $lang["common_powered_by"] = "Powered by";
 $lang["common_price"] = "Price";
+$lang["common_quantity"] = "Quantity";
 $lang["common_remove"] = "Remove";
 $lang["common_return_policy"] = "Return Policy";
 $lang["common_search"] = "Search";
