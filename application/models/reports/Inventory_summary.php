@@ -26,6 +26,7 @@ class Inventory_summary extends Report
         $this->db->join('item_quantities','items.item_id=item_quantities.item_id');
         $this->db->join('stock_locations','item_quantities.location_id=stock_locations.location_id');
 		$this->db->select('name, item_number, reorder_level, item_quantities.quantity, description, location_name, cost_price, unit_price, (cost_price*quantity) as sub_total_value');
+		$this->db->where('items.stock_keeping_item', 1);
 		$this->db->where('items.deleted', 0);
 		// should be corresponding to values Inventory_summary::getItemCountDropdownArray() returns...
 		if($inputs['item_count'] == 'zero_and_less')

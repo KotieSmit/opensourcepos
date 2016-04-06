@@ -243,6 +243,11 @@ class Items extends Secure_area implements iData_controller
 		$this->load->view("items/count_details", $data);
 	}
 
+	function bom($item_id){
+		$data['item_info']=$this->Item->get_info($item_id);
+		$this->load->view("items/bom",$data);
+	}
+
 	function generate_barcodes($item_ids)
 	{
 		$this->load->library('barcode_lib');
@@ -320,6 +325,9 @@ class Items extends Secure_area implements iData_controller
 			'receiving_quantity'=>$this->input->post('receiving_quantity'),
 			'allow_alt_description'=>$this->input->post('allow_alt_description') != null,
 			'is_serialized'=>$this->input->post('is_serialized') != null,
+			'stock_keeping_item'=>$this->input->post('stock_keeping_item') !=null,
+			'cost_from_bom'=>$this->input->post('cost_from_bom') !=null,
+			'production_item'=>$this->input->post('production_item') !=null,
 			'deleted'=>$this->input->post('is_deleted') != null,
 			'custom1'=>$this->input->post('custom1') == null ? '' : $this->input->post('custom1'),
 			'custom2'=>$this->input->post('custom2') == null ? '' : $this->input->post('custom2'),
@@ -477,7 +485,37 @@ class Items extends Secure_area implements iData_controller
 			echo json_encode(array('success'=>false,'message'=>$this->lang->line('items_error_adding_updating').' '.
 			$cur_item_info->name,'item_id'=>-1));
 		}
-	}
+
+	}//---------------------------------------------------------------------Ramel
+
+    function save_bom($item_id=-1){
+        $total_bom_cost=null;
+        if ($this->input->post('bom_item'))
+        {
+            $item_bom_items = array();
+            foreach($this->input->post('bom_item') as $item_id => $quantity)
+            {
+                $item_bom_items[] = array(
+                    'bom_item_id' => $item_id,
+                    'quantity' => $quantity
+                );
+            }
+            $item_info=$this->Item->get_info($this->input->post('item_id'));
+            if ($item_info->cost_from_bom) $total_bom_cost =$this->input->post('total_bom_cost');
+            $result = $this->Item->save_bom_items($item_bom_items, $this->input->post('item_id'), $total_bom_cost);
+        } else {
+            $item_bom_items = array();
+            $result = $this->Item->save_bom_items($item_bom_items, $this->input->post('item_id'));
+        }
+
+        if($result){
+            echo json_encode(array('success'=>true,'message'=>$this->lang->line('items_successful_updating')));
+        } else //failure
+        {
+            echo json_encode(array('success'=>false,'message'=>$this->lang->line('items_error_adding_updating'),'item_id'=>-1));
+        }
+//        return $result;
+    }
 
 	function bulk_update()
 	{

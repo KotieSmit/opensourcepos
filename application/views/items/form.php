@@ -193,7 +193,7 @@
 						);?>
 			</div>
 		</div>
-		
+
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('items_image'), 'items_image', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-8'>
@@ -249,6 +249,54 @@
 						'value'=>1,
 						'checked'=>($item_info->deleted) ? 1 : 0)
 						);?>
+			</div>
+		</div>
+
+		<div class="form-group form-group-sm">
+			<?php echo form_label($this->lang->line('items_stock_keeping_item'), 'is_serialized',array('class'=>'control-label col-xs-3')); ?>
+			<div class='col-xs-1'>
+				<?php echo form_checkbox(array(
+						'name'=>'stock_keeping_item',
+						'id'=>'stock_keeping_item',
+						'value'=>1,
+						'checked'=>($item_info->stock_keeping_item)? 1 : 0)
+				);?>
+			</div>
+		</div>
+
+		<div class="form-group form-group-sm">
+			<?php echo form_label($this->lang->line('items_stock_keeping_item'), 'is_serialized',array('class'=>'control-label col-xs-3')); ?>
+			<div class='col-xs-1'>
+				<?php echo form_checkbox(array(
+						'name'=>'stock_keeping_item',
+						'id'=>'stock_keeping_item',
+						'value'=>1,
+						'checked'=>($item_info->stock_keeping_item)? 1 : 0)
+				);?>
+			</div>
+		</div>
+
+		<div class="form-group form-group-sm">
+			<?php echo form_label($this->lang->line('items_cost_from_bom'), 'is_serialized',array('class'=>'control-label col-xs-3')); ?>
+			<div class='col-xs-1'>
+				<?php echo form_checkbox(array(
+						'name'=>'cost_from_bom',
+						'id'=>'cost_from_bom',
+						'value'=>1,
+						'checked'=>($item_info->cost_from_bom)? 1 : 0)
+				);?>
+			</div>
+		</div>
+
+		<div class="form-group form-group-sm">
+			<?php echo form_label($this->lang->line('items_production_item'), 'is_serialized',array('class'=>'control-label col-xs-3')); ?>
+			<div class='col-xs-1'>
+				<?php echo form_checkbox(array(
+						'name'=>'production_item',
+						'id'=>'production_item',
+						'value'=>1,
+						'checked'=>($item_info->production_item)? 1 : 0)
+				);?>
 			</div>
 		</div>
 

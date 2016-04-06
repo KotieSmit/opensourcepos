@@ -47,7 +47,7 @@ class Detailed_sales extends Report
             $this->db->where('quantity_purchased < 0');
         }
 
-		$this->db->group_by('sale_id');
+		$this->db->group_by('sale_id, sale_date, employee_name, customer_name, payment_type, comment');
 		$this->db->order_by('sale_date');
 
 		$data = array();

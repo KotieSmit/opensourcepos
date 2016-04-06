@@ -1,6 +1,17 @@
 <?php
 class Sale extends CI_Model
 {
+	var $full_bom;
+	var $main_item;
+	var $b;
+	var $sale_qty;
+	var $sale_item_id;
+	var $bom_qty_factor;
+	var $curr_bom_quantity;
+	var $parent_item_id;
+	var $tmp_item_id;
+	var $tmp_parent_id;
+
 	public function get_info($sale_id)
 	{
 		$this->db->select('first_name, last_name, email, comment, sale_payment_amount AS amount_tendered, payment_type,
@@ -12,7 +23,8 @@ class Sale extends CI_Model
 		$this->db->join('people', 'people.person_id = sales_items_temp.customer_id', 'left');
 
 		$this->db->where('sales_items_temp.sale_id', $sale_id);
-		$this->db->group_by('sale_id');
+		$this->db->group_by('sale_id, first_name, last_name, email, comment, amount_tendered, payment_type,
+			invoice_number, sale_time, employee_id, customer_id, comments, sale_id, change_due');
 		$this->db->order_by('sale_time', 'asc');
 
 		return $this->db->get();
@@ -83,7 +95,7 @@ class Sale extends CI_Model
 			$this->db->like('payment_type ', $this->lang->line('sales_cash'), 'after');
 		}
 		
-		$this->db->group_by('sale_id');
+		$this->db->group_by('`sale_id`, `sale_date`, `sale_time`, `customer_name`, `amount_tendered`, `payment_type`, `invoice_number`');
 		$this->db->order_by('sale_date', 'asc');
 		
 		if ($rows > 0)
@@ -256,12 +268,21 @@ class Sale extends CI_Model
 			return -1;
 		}
 
+
+		$payment_types='';
+		foreach($payments as $payment_id=>$payment)
+		{
+			$payment_types=$payment_types.$payment['payment_type'].': '.to_currency($payment['payment_amount']).'<br />';
+		}
+
+
 		$sales_data = array(
 			'sale_time' => date('Y-m-d H:i:s'),
 			'customer_id'=> $this->Customer->exists($customer_id) ? $customer_id : null,
 			'employee_id'=>$employee_id,
 			'comment'=>$comment,
-			'invoice_number'=>$invoice_number
+			'invoice_number'=>$invoice_number,
+			'cashup_id' => $this->session->userdata['cashup_id']
 		);
 
 		// Run these queries as a transaction, we want to make sure we do all or nothing
@@ -272,6 +293,7 @@ class Sale extends CI_Model
 
 		foreach($payments as $payment_id=>$payment)
 		{
+			$payment_type = $payment['payment_type'];
 			if ( substr( $payment['payment_type'], 0, strlen( $this->lang->line('sales_giftcard') ) ) == $this->lang->line('sales_giftcard') )
 			{
 				// We have a gift card and we have to deduct the used value from the total value of the card.
@@ -283,8 +305,11 @@ class Sale extends CI_Model
 			$sales_payments_data = array(
 				'sale_id'=>$sale_id,
 				'payment_type'=>$payment['payment_type'],
-				'payment_amount'=>$payment['payment_amount']
+				'payment_amount'=>$payment['payment_amount'],
+//				'fk_reason'=>$payment['fk_reason'],
+				'cashup_id' => $this->session->userdata['cashup_id']
 			);
+
 			$this->db->insert('sales_payments',$sales_payments_data);
 		}
 
@@ -307,25 +332,38 @@ class Sale extends CI_Model
 
 			$this->db->insert('sales_items',$sales_items_data);
 
-			//Update stock quantity
-			$item_quantity = $this->Item_quantity->get_item_quantity($item['item_id'], $item['item_location']);
-			$this->Item_quantity->save(array('quantity'=>$item_quantity->quantity - $item['quantity'],
-                                              'item_id'=>$item['item_id'],
-                                              'location_id'=>$item['item_location']), $item['item_id'], $item['item_location']);
 
-			//Inventory Count Details
+			//Update stock quantity
 			$qty_buy = -$item['quantity'];
 			$sale_remarks ='POS '.$sale_id;
-			$inv_data = array
-			(
-				'trans_date'=>date('Y-m-d H:i:s'),
-				'trans_items'=>$item['item_id'],
-				'trans_user'=>$employee_id,
-				'trans_location'=>$item['item_location'],
-				'trans_comment'=>$sale_remarks,
-				'trans_inventory'=>$qty_buy
-			);
-			$this->Inventory->insert($inv_data);
+
+//	$this->update_stock_tracking($item, $sale_id, $employee_id);
+			//* Update BOM items qty and stock tracking
+			$this->update_bom_stock_items($this->get_bom_items($item), $sale_id, $employee_id, $sale_remarks);
+
+			 if ($item["stock_keeping_item"]) {
+
+
+				 $item_quantity = $this->Item_quantity->get_item_quantity($item['item_id'], $item['item_location']);
+
+				 $this->Item_quantity->save(array(
+					 'quantity' => $item_quantity->quantity - $item['quantity'],
+					 'item_id' => $item['item_id'],
+					 'location_id' => $item['item_location']), $item['item_id'], $item['item_location']);
+
+				 //Inventory Count Details
+
+				 $inv_data = array
+				 (
+					 'trans_date' => date('Y-m-d H:i:s'),
+					 'trans_items' => $item['item_id'],
+					 'trans_user' => $employee_id,
+					 'trans_location' => $item['item_location'],
+					 'trans_comment' => $sale_remarks,
+					 'trans_inventory' => $qty_buy
+				 );
+				 $this->Inventory->insert($inv_data);
+			 }
 
 			$customer = $this->Customer->get_info($customer_id);
  			if ($customer_id == -1 or $customer->taxable)
@@ -351,7 +389,114 @@ class Sale extends CI_Model
 		
 		return $sale_id;
 	}
-	
+
+
+
+
+	function build_bom($item, $key){
+		if (!isset($bom_qty_factor)) $bom_qty_factor = $this->sale_qty;
+		if ($key  == 'item_id') $this->parent_item_id = $item;
+		if ($key  == 'bom_item_id') $this->tmp_item_id = $item;
+		if ((isset($this->parent_item_id) and isset($this->tmp_item_id) and ($key == 'item_id' or $key == 'bom_item_id'))){
+			$item=$this->tmp_item_id;
+			unset($this->tmp_item_id);
+			if ($key  == 'bom_item_id') {
+				$bom_item = (array) $this->Item->get_info($item);
+				$this->curr_bom_quantity = $this->Item->get_bom_item_quantity($this->parent_item_id, $bom_item['item_id']);
+				if (is_array($this->curr_bom_quantity)) {$this->curr_bom_quantity = $this->curr_bom_quantity[0]["quantity"];}
+				if ($bom_item['stock_keeping_item'] == 1) {
+
+					array_push($this->full_bom,
+						['item_id'=>$item, 'parent_item_id'=>$this->parent_item_id ,'quantity'=>($bom_qty_factor * $this->curr_bom_quantity)]);
+				} else {
+					$bom_qty_factor = $bom_qty_factor * $this->curr_bom_quantity;
+					$this->parent_item_id = $bom_item['item_id'];
+					array_walk_recursive($bom_item ,array($this, 'build_bom'));
+				}
+			}
+		}
+	}
+
+	function get_bom_items($item){
+		$this->full_bom = array();
+		$this->sale_qty = $item['quantity'];
+		$this->parent_item_id = $item['item_id'];
+
+		$bom_items = [];
+		$this->db->select();
+		$this->db->from("item_bom");
+		$this->db->where("item_id = " . $item["item_id"]);
+		$result = $this->db->get()->result_array();
+
+		array_walk_recursive($result ,array($this, 'build_bom'));
+		return $this->full_bom;
+	}
+
+	function update_bom_stock_items($items, $sale_id, $employee_id, $sale_remarks){
+		foreach ($items as $bom_item){
+			$bom_item_info = $this->Item->get_info($bom_item['item_id']);
+			$parent_item_info = $this->Item->get_info($bom_item['parent_item_id']);
+			$bom_item = array(
+				'item_id'=>$bom_item['item_id'],
+				'stock_keeping_item'=>$bom_item_info->stock_keeping_item,
+				'quantity'=>$bom_item['quantity'],
+				'main_item'=>$parent_item_info->name
+			);
+
+			$item_quantity = $this->Item_quantity->get_item_quantity($bom_item['item_id'], 1);
+			$bom_item["item_location"] = $item_quantity->location_id;
+			$this->update_stock_quantity($bom_item, $item_quantity->quantity  - $bom_item['quantity'], $employee_id, $sale_remarks);
+
+
+			$this->Item_quantity->save(array(
+				'quantity' => $item_quantity->quantity - $bom_item['quantity'],
+				'item_id' => $bom_item['item_id'],
+				'location_id' => $bom_item['item_location']), $bom_item['item_id'], $bom_item['item_location']);
+
+//			$this->update_stock_tracking($bom_item, $sale_id, $employee_id);
+
+		}
+	}
+
+	function update_stock_quantity($item, $quantity, $employee_id, $sale_remarks){
+		if ($item['stock_keeping_item']){
+			$inv_data = array
+			(
+				'trans_date'=>date('Y-m-d H:i:s'),
+				'trans_items'=>$item['item_id'],
+				'trans_user'=>$employee_id,
+				'trans_location'=>$item['item_location'],
+				'trans_comment'=>$sale_remarks,
+				'trans_inventory'=>$quantity
+			);
+			$this->Inventory->insert($inv_data);
+
+
+		}
+	}
+
+//	function update_stock_tracking($item, $sale_id, $employee_id){
+//		if ($item['stock_keeping_item']){
+//			//Ramel Inventory Tracking
+//			//Inventory Count Details
+//			$qty_buy = -$item['quantity'];
+//			$sale_remarks ='POS '.$sale_id;
+//			if (isset($item['main_item'])) {$sale_remarks = 'POS '.$sale_id . 'Item: ' . $item['main_item'];}
+//			$inv_data = array
+//			(
+//				'trans_date'=>date('Y-m-d H:i:s'),
+//				'trans_items'=>$item['item_id'],
+//				'trans_user'=>$employee_id,
+//				'trans_comment'=>$sale_remarks,
+//				'trans_inventory'=>$qty_buy
+//			);
+//			$this->Inventory->insert($inv_data);
+//			//------------------------------------Ramel
+//		}
+//	}
+
+
+
 	public function delete_list($sale_ids, $employee_id, $update_inventory=TRUE) 
 	{
 		$result = TRUE;
@@ -497,7 +642,7 @@ class Sale extends CI_Model
 		.$this->db->dbprefix('sales_items').'.sale_id='.$this->db->dbprefix('sales_items_taxes').'.sale_id'." and "
 		.$this->db->dbprefix('sales_items').'.item_id='.$this->db->dbprefix('sales_items_taxes').'.item_id'." and "
 		.$this->db->dbprefix('sales_items').'.line='.$this->db->dbprefix('sales_items_taxes').'.line'."
-		GROUP BY sale_id, item_id, line)");
+		GROUP BY sale_id, item_id, line, sale_date,`sale_time`, `payment_type`,`invoice_number`)");
 
 		//Update null item_tax_percents to be 0 instead of null
 		$this->db->where('item_tax_percent IS NULL');

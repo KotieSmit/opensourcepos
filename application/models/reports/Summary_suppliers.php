@@ -29,7 +29,7 @@ class Summary_suppliers extends Report
             $this->db->where('quantity_purchased < 0');
         }
 
-		$this->db->group_by('supplier_id');
+		$this->db->group_by('supplier_id, supplier');
 		$this->db->order_by('last_name');
 		
 		return $this->db->get()->result_array();

@@ -317,6 +317,8 @@ class Sale_lib
                     'price'=>$price,
                     'total'=>$total,
                     'discounted_total'=>$discounted_total,
+					'stock_keeping_item' => $item_info->stock_keeping_item,
+					'retail_item' => $item_info->retail_item
                 )
             );
 			//add to existing array
