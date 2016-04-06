@@ -3,6 +3,10 @@ Introduction
 
 Open Source Point of Sale is a web based point of sale system written in the PHP language. It uses MySQL as the data storage back-end and has a simple user interface.
 
+This is vs 3.0.0 and based on Bootstrap 3 using Bootswatch theme Flatly as default. This version also contains CodeIgniter 3.0.5.
+
+Please be aware that at least PHP 5.5 is required.
+
 Badges
 ------
 
@@ -24,7 +28,7 @@ password:pointofsale
 
 FAQ
 ---
-If an blank page (HTTP status 500) shows after search completion or receipt generation, then double check php5-gd presence in your php installation. On windows check in php.ini whether the lib is installed. On Ubuntu issue `sudo apt-get install php5-gd`. Also have a look at the Dockerfile for a complete list of recommended packages.
+If a blank page (HTTP status 500) shows after search completion or receipt generation, then double check php5-gd presence in your php installation. On windows check in php.ini whether the lib is installed. On Ubuntu issue `sudo apt-get install php5-gd`. Also have a look at the Dockerfile for a complete list of recommended packages.
 
 13/01/2016: Install using Docker
 -------------------------------

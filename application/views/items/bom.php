@@ -1,115 +1,123 @@
 <div id="required_fields_message"><?php echo $this->lang->line('common_fields_required_message'); ?></div>
-<ul id="error_message_box"></ul>
-<?php
-echo form_open('items/save_bom/' . $item_info->item_id, array('id' => 'bom_form'));
-?>
-<fieldset id="bom_info">
-    <legend><?php echo $this->lang->line("items_info"); ?></legend>
 
+<ul id="error_message_box" class="error_message_box"></ul>
 
-    <div class="field_row clearfix">
-        <?php echo form_label($this->lang->line('items_name') . ':', 'name', array('class' => 'wide required')); ?>
-        <div class='form_field'>
-            <?php echo form_input(array(
-                    'name' => 'item_id',
-                    'id' => 'item_id',
-                    'value' => $item_info->item_id)
-            );?>
+<?php echo form_open('items/save_bom/' . $item_info->item_id, array('id' => 'bom_form', 'class'=>'form-horizontal')); ?>
+    <fieldset id="bom_info">
+        <div class="form-group form-group-sm">
+            <?php echo form_label($this->lang->line('items_name'), 'name', array('class'=>'control-label col-xs-3')); ?>
+            <div class='col-xs-6'>
+                <?php echo form_input(array(
+                        'name'=>'name',
+                        'id'=>'name',
+                        'class'=>'form-control input-sm',
+                        'disabled'=>'',
+                        'value'=>$item_info->name)
+                ); ?>
+            </div>
         </div>
-    </div>
 
-    <div class="field_row clearfix">
-        <?php echo form_label($this->lang->line('items_name') . ':', 'name', array('class' => 'wide required')); ?>
-        <div class='form_field'>
-            <?php echo form_input(array(
-                    'name' => 'name',
-                    'id' => 'name',
-                    'value' => $item_info->name)
-            );?>
+        <div class="form-group form-group-sm">
+            <?php echo form_label($this->lang->line('items_name'), 'name', array('class'=>'control-label col-xs-3')); ?>
+            <div class='col-xs-6'>
+                <?php echo form_input(array(
+                        'name'=>'item_id',
+                        'id'=>'item_id',
+                        'class'=>'form-control input-sm',
+                        'disabled'=>'',
+                        'value'=>$item_info->item_id)
+                ); ?>
+            </div>
         </div>
-    </div>
 
-    <div class="field_row clearfix">
-        <?php echo form_label($this->lang->line('items_description') . ':', 'description', array('class' => 'wide')); ?>
-        <div class='form_field'>
-            <?php echo form_textarea(array(
-                    'name' => 'description',
-                    'id' => 'description',
-                    'value' => $item_info->description,
-                    'rows' => '5',
-                    'cols' => '17')
-            );?>
+
+        <div class="form-group form-group-sm">
+            <?php echo form_label($this->lang->line('items_inventory_comments'), 'description', array('class'=>'control-label col-xs-3')); ?>
+            <div class='col-xs-6'>
+                <?php echo form_textarea(array(
+                        'name'=>'trans_comment',
+                        'id'=>'trans_comment',
+                        'class'=>'form-control input-sm')
+                );?>
+            </div>
         </div>
-    </div>
 
+        <div class="form-group form-group-sm">
+            <?php echo form_label($this->lang->line('items_add_item'), 'quantity_' . $key, array('class'=>' control-label col-xs-3')); ?>
+            <div class='col-xs-3'>
+<!--                --><?php //echo form_input(array(
+//                        'name'=>'item_' . $key,
+//                        'id'=>'item_' . $key,
+//                        'class'=>'required form-control',
+//                        'value'=>$item_info->item_id)
+//                );?>
+                <?php echo form_input(array(
+                        'name'=>'item',
+                        'id'=>'item',
+                        'class'=>'required form-control',
+                        'value'=>$item_info->item_id)
+                );?>
 
-    <div class="field_row clearfix">
-        <?php echo form_label($this->lang->line('items_add_item') . ':', 'item', array('class' => 'wide')); ?>
-        <div class='form_field'>
-            <?php echo form_input(array(
-                'name' => 'item',
-                'id' => 'item'
-            ));?>
+            </div>
         </div>
-    </div>
 
-    <table id="item_kit_items">
-        <tr>
-            <th><?php echo $this->lang->line('common_delete'); ?></th>
-            <th><?php echo $this->lang->line('items_item'); ?></th>
-            <th><?php echo $this->lang->line('common_quantity'); ?></th>
-            <th><?php echo $this->lang->line('items_cost'); ?></th>
-        </tr>
-        <?php
-        $bom_items = $item_info->bom;
-        $count = 0;
-        $total_cost = 0;
-        foreach ($bom_items as $item_bom_item) {
-            ?>
-            <tr class="bom_item">
-                <?php
-                $item_info = $this->Item->get_info($item_bom_item['bom_item_id']);
-                ?>
-                <td><a href="#" onclick='return deleteItemBomRow(this);'>X</a></td>
-                <td><?php echo $item_info->name; ?></td>
-                <td>
-                    <input class="quantity quantity_<?php echo $count; ?>"
-                           id='bom_item_<?php echo $item_bom_item['item_id'] ?>' type='text' size='3'
-                           name=bom_item[<?php echo $item_info->item_id ?>]
-                           onchange=calc_cost()
-                           value='<?php echo $item_bom_item['quantity'] ?>'
-                    />
-                </td>
-                <td class="unit_cost_<?php echo $count; ?>"
-                    id=item_cost_<?php echo $count ?>
-                    data-unit_cost_<?php echo $count . '=' . $item_bom_item['cost_price'] ?> ><?php echo number_format($item_bom_item['cost_price'] * $item_bom_item['quantity'], 2); ?>
-                </td>
-                <?php $total_cost += $item_bom_item['cost_price'] * $item_bom_item['quantity'] ?>
-
+        <table id="item_kit_items">
+            <tr>
+                <th><?php echo $this->lang->line('common_delete'); ?></th>
+                <th><?php echo $this->lang->line('items_item'); ?></th>
+                <th><?php echo $this->lang->line('common_quantity'); ?></th>
+                <th><?php echo $this->lang->line('items_cost'); ?></th>
             </tr>
-            <?php $count = $count + 1;
-        } ?>
-    </table>
+            <?php
+            $bom_items = $item_info->bom;
+            $count = 0;
+            $total_cost = 0;
+            foreach ($bom_items as $item_bom_item) {
+                ?>
+                <tr class="bom_item">
+                    <?php
+                    $item_info = $this->Item->get_info($item_bom_item['bom_item_id']);
+                    ?>
+                    <td><a href="#" onclick='return deleteItemBomRow(this);'>X</a></td>
+                    <td><?php echo $item_info->name; ?></td>
+                    <td>
+                        <input class="quantity quantity_<?php echo $count; ?>"
+                               id='bom_item_<?php echo $item_bom_item['item_id'] ?>' type='text' size='3'
+                               name=bom_item[<?php echo $item_info->item_id ?>]
+                               onchange=calc_cost()
+                               value='<?php echo $item_bom_item['quantity'] ?>'
+                        />
+                    </td>
+                    <td class="unit_cost_<?php echo $count; ?>"
+                        id=item_cost_<?php echo $count ?>
+                        data-unit_cost_<?php echo $count . '=' . $item_bom_item['cost_price'] ?> ><?php echo number_format($item_bom_item['cost_price'] * $item_bom_item['quantity'], 2); ?>
+                    </td>
+                    <?php $total_cost += $item_bom_item['cost_price'] * $item_bom_item['quantity'] ?>
 
-    <div class="field_row clearfix">
-        <?php echo form_label($this->lang->line('items_bom_cost') . ':', 'total_bom_cost', array('class' => 'wide')); ?>
-        <div class='form_field'>
-            <?php echo form_input(array(
-                'value' => $total_cost,
-                'name' => 'total_bom_cost',
-                'id' => 'bom_cost'
-            ));?>
+                </tr>
+                <?php $count = $count + 1;
+            } ?>
+        </table>
+
+        <div class="field_row clearfix">
+            <?php echo form_label($this->lang->line('items_bom_cost') . ':', 'total_bom_cost', array('class' => 'wide')); ?>
+            <div class='form_field'>
+                <?php echo form_input(array(
+                    'value' => $total_cost,
+                    'name' => 'total_bom_cost',
+                    'id' => 'bom_cost'
+                ));?>
+            </div>
         </div>
-    </div>
 
-    <?php
-    echo form_submit(array(
-            'name' => 'submit',
-            'id' => 'submit',
-            'value' => $this->lang->line('common_submit'),
-            'class' => 'submit_button float_right')
-    );
-    ?>
+<!--        --><?php
+//        echo form_submit(array(
+//                'name' => 'submit',
+//                'id' => 'submit',
+//                'value' => $this->lang->line('common_submit'),
+//                'class' => 'submit_button float_right')
+//        );
+//        ?>
 </fieldset>
 <?php
 echo form_close();

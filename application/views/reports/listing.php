@@ -1,8 +1,14 @@
 <?php $this->load->view("partial/header"); ?>
-<div id="page_title" style="margin-bottom:8px;"><?php echo $this->lang->line('reports_reports'); ?></div>
-<div id="welcome_message"><?php echo $this->lang->line('reports_welcome_message'); ?>
+
+<?php
+if(isset($error))
+{
+	echo "<div class='alert alert-dismissible alert-danger'>".$error."</div>";
+}
+?>
+
 <ul id="report_list">
-	<li><h3><?php echo $this->lang->line('reports_graphical_reports'); ?></h3>
+	<li><h4><?php echo $this->lang->line('reports_graphical_reports'); ?></h4>
 		<ul>
 			<?php
 			foreach($grants as $grant)
@@ -15,8 +21,8 @@
 			?>
 		</ul>
 	</li>
-
-	<li><h3><?php echo $this->lang->line('reports_summary_reports'); ?></h3>
+	
+	<li><h4><?php echo $this->lang->line('reports_summary_reports'); ?></h4>
 		<ul>
 			<?php
 			foreach($grants as $grant)
@@ -29,8 +35,8 @@
 			?>
 		</ul>
 	</li>
-
-	<li><h3><?php echo $this->lang->line('reports_detailed_reports'); ?></h3>
+	
+	<li><h4><?php echo $this->lang->line('reports_detailed_reports'); ?></h4>
 		<ul>
 		<?php
 			$person_id = $this->session->userdata('person_id');
@@ -48,7 +54,7 @@
 	if ($this->Employee->has_grant('reports_inventory', $this->session->userdata('person_id')))
 	{
 	?>
-	<li><h3><?php echo $this->lang->line('reports_inventory_reports'); ?></h3>
+	<li><h4><?php echo $this->lang->line('reports_inventory_reports'); ?></h4>
 		<ul>
 		<?php
 			show_report('', 'reports_inventory_low');
@@ -60,10 +66,5 @@
 	}
 	?>
 </ul>
-<?php
-if(isset($error))
-{
-	echo "<div class='error_message'>".$error."</div>";
-}
-?>
+
 <?php $this->load->view("partial/footer"); ?>
